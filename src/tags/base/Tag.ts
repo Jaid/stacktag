@@ -1,15 +1,17 @@
 import type {Arrayable, Constructor} from 'type-fest'
 
-type TagRepresentation = Constructor<Tag> | string
-type TagList = Arrayable<TagRepresentation>
-type EventPayload = {
+import EventEmitter from 'events'
+
+export type EventPayload = {
   detection: boolean
   id: string
   tag: Constructor<Tag>
   value: unknown
 }
+type TagRepresentation = Constructor<Tag> | string
+type TagList = Arrayable<TagRepresentation>
 
-export default abstract class Tag {
+export default abstract class Tag extends EventEmitter {
   /**
    * A detection run that doesn’t throw will always be considered a `true` detection. Throw a `NotDetectedError` to indicate a `false` state from a clean detection run or any other `Error` to indicate a `false` state due to unexpected conditions.
    * @return an optional payload with data collected during detection
@@ -35,12 +37,6 @@ export default abstract class Tag {
    */
   impliesAndSkips(): TagList {
     return []
-  }
-  /**
-   * event listener that gets triggered after a `tag.detect()` was called
-   */
-  listen(event: EventPayload) {
-    void event
   }
   /**
    * @return a list of tags that should be detected before this tag gets detected – Every listed tag must have a detection state of `true`, otherwise the own detection will be skipped
