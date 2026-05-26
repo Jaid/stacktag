@@ -2,6 +2,13 @@
   "name": "stacktag",
   "version": "0.1.0",
   "type": "module",
+  "description": "Analyzes a project folder and returns tags and metadata",
+  "funding": "https://github.com/sponsors/Jaid",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jaid/stacktag.git"
+  },
   "exports": {
     ".": {
       "default": "./src/main.ts"
@@ -11,10 +18,6 @@
     "#src/*": "./src/*",
     "#root/*": "./*"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Jaid/stacktag.git"
-  },
   "scripts": {
     "test": "bun test --max-concurrency 1 ./test"
   },
@@ -23,8 +26,10 @@
     "eslint": "^10.4.0",
     "eslint-config-jaid": "^26.0.0",
     "tsconfig-jaid-bun": "^15.2.0",
+    "type-fest": "^5.6.0",
     "typescript": "^6.0.3"
   },
-  "funding": "https://github.com/sponsors/Jaid",
-  "license": "MIT"
+  "dependencies": {
+    "fs-extra": "^11.3.5"
+  }
 }
