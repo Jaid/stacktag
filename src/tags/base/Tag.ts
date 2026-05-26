@@ -1,15 +1,16 @@
 import type {Arrayable, Constructor} from 'type-fest'
 
-import EventEmitter from 'events'
+import {EventEmitter} from 'node:events'
 
 export type EventPayload = {
   detection: boolean
+  error?: Error
   id: string
-  tag: Constructor<Tag>
+  tag: Tag
   value: unknown
 }
-type TagRepresentation = Constructor<Tag> | string
-type TagList = Arrayable<TagRepresentation>
+export type TagRepresentation = Constructor<Tag> | string
+export type TagList = Arrayable<TagRepresentation>
 
 export default abstract class Tag extends EventEmitter {
   /**

@@ -1,30 +1,48 @@
+import path from 'node:path'
+
 import fs from 'fs-extra'
+
+import expect from '#src/expect.ts'
+import {readTrimmedFile} from '#src/lib/fs.ts'
+import NotDetectedError from '#src/NotDetectedError.ts'
 
 import Tag from './base/Tag.ts'
 
 export default class GitTag extends Tag {
   override async detect(folder: string) {
-    const gitFolder = `${folder}/.git`
-    const gitFolderExists = await fs.exists(gitFolder)
-    if (!gitFolderExists) {
-      return
+    const gitPath = `${folder}/.git`
+    const gitPathExists = await fs.exists(gitPath)
+    if (!gitPathExists) {
+      throw new NotDetectedError(`Missing Git marker: ${gitPath}`)
+    }
+    const gitStats = await fs.stat(gitPath)
+    let gitFolder = gitPath
+    if (gitStats.isFile()) {
+      const gitdirPattern = /^\s*gitdir:\s*(?<gitdir>.+)\s*$/
+      const gitdirContent = await readTrimmedFile(gitPath)
+      const gitdirMatch = gitdirPattern.exec(gitdirContent)
+      const gitdir = gitdirMatch?.groups?.gitdir
+      if (!gitdir) {
+        throw new NotDetectedError(`Unsupported .git indirection in ${gitPath}`)
+      }
+      gitFolder = path.resolve(folder, gitdir).replaceAll('\\', '/')
+    } else {
+      await expect.folderExists(gitFolder)
     }
     const headFile = `${gitFolder}/HEAD`
-    const headFileExists = await fs.exists(headFile)
-    if (!headFileExists) {
-      return
-    }
+    await expect.fileNotEmpty(headFile)
     const headContentPattern = /^\s*ref:\s+refs\/heads\/(?<branch>.+)\s*$/
-    const headContent = await fs.readFile(headFile, 'utf8')
+    const detachedHeadPattern = /^(?<commit>[0-9a-f]{40})$/i
+    const headContent = await readTrimmedFile(headFile)
     const headContentMatch = headContentPattern.exec(headContent)
-    if (!headContentMatch) {
-      return
+    if (headContentMatch?.groups?.branch) {
+      return headContentMatch.groups.branch
     }
-    const branch = headContentMatch.groups?.branch
-    if (!branch) {
-      return
+    const detachedHeadMatch = detachedHeadPattern.exec(headContent)
+    if (detachedHeadMatch?.groups?.commit) {
+      return detachedHeadMatch.groups.commit
     }
-    return branch
+    throw new NotDetectedError(`Unsupported Git HEAD format in ${headFile}`)
   }
   override getName() {
     return 'Git'

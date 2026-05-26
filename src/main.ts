@@ -1,15 +1,6 @@
-export default class Project {
-  cwd: string
-  results: Record<string, unknown> | undefined
-  constructor(cwd: string = process.cwd()) {
-    this.cwd = cwd
-  }
-  async getTags() {
-    if (!this.results) {
-      await this.init()
-    }
-  }
-  async init() {
-    this.results = {}
-  }
-}
+export {default} from './Project.ts'
+export {default as Project} from './Project.ts'
+export type {DetectedTag, ProjectResults, TagRegistry, TagResult} from './Project.ts'
+export type {EventPayload, TagList, TagRepresentation} from './tags/base/Tag.ts'
+export {BunTag, DenoTag, GitTag, NodeLikeTag, NodeTag, PythonTag, RustTag} from './tags/index.ts'
+export {default as tags} from './tags/index.ts'
