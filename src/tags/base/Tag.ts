@@ -29,7 +29,7 @@ export default abstract class Tag extends EventEmitter {
     return this.constructor.name
   }
   /**
-   * @returns priority – higher numbers get evaluated earlier
+   * @return priority – higher numbers get evaluated earlier
    */
   getPriority(): number {
     return 100
