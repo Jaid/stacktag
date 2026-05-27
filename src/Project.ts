@@ -1,5 +1,5 @@
 import type Tag from '#src/tags/base/Tag.ts'
-import type {EventPayload, TagRepresentation} from '#src/tags/base/Tag.ts'
+import type {EventPayload, TagPayload, TagRepresentation} from '#src/tags/base/Tag.ts'
 import type {Constructor} from 'type-fest'
 
 import path from 'node:path'
@@ -10,7 +10,7 @@ import defaultTagRegistry from '#src/tags/index.ts'
 export type DetectedTag = {
   id: string
   name: string
-  value: unknown
+  value: TagPayload | undefined
 }
 
 export type TagRegistry = ReadonlyMap<string, Constructor<Tag>>
@@ -25,7 +25,7 @@ export type TagResult = {
   priority: number
   ran: boolean
   skipped: boolean
-  value: unknown
+  value: TagPayload | undefined
 }
 
 export type ProjectResults = Record<string, TagResult>
@@ -220,9 +220,17 @@ export default class Project {
     let error: Error | undefined
     let detection = false
     try {
-      result.value = await tag.detect(this.cwd)
-      detection = true
-      result.detected = true
+      const detectionResult = await tag.detect(this.cwd)
+      if (detectionResult !== false) {
+        detection = true
+        result.detected = true
+        result.value = detectionResult === undefined ? undefined : detectionResult
+      } else {
+        result.value = undefined
+        if (!result.forced) {
+          result.detected = false
+        }
+      }
     } catch (rawError) {
       error = toError(rawError)
       result.error = error

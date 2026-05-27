@@ -1,3 +1,5 @@
+import type {Jsonifiable} from 'type-fest'
+
 import fs from 'fs-extra'
 import trimAround from 'trim-around'
 
@@ -15,12 +17,12 @@ export const readTrimmedFile = async (file: string) => {
   return trimAround(content)
 }
 
-export const parseJson5File = async <Type = Record<string, unknown>>(file: string) => {
+export const parseJson5File = async <Type extends Jsonifiable = Jsonifiable>(file: string) => {
   const content = await readTrimmedFile(file)
   return Bun.JSON5.parse(content) as Type
 }
 
-export const parseTomlFile = async <Type = Record<string, unknown>>(file: string) => {
+export const parseTomlFile = async <Type extends Jsonifiable = Jsonifiable>(file: string) => {
   const content = await readTrimmedFile(file)
   return Bun.TOML.parse(content) as Type
 }

@@ -36,10 +36,12 @@ Throws if `init()` has not completed yet.
 Returns all detected tags in execution order.
 
 ```ts
+import type {Jsonifiable} from 'type-fest'
+
 type DetectedTag = {
 	id: string
 	name: string
-	value: unknown
+	value: Jsonifiable | undefined
 }
 ```
 
@@ -50,6 +52,8 @@ Sync alias for `project.results`.
 ### `project.getResult(tag)`
 
 Returns the detailed result for a single tag. `tag` may be a tag id or a tag class.
+
+Custom tag payloads are always JSON-serializable. Returning `false` from `detect()` marks a tag as undetected.
 
 ### `project.hasTag(tag)`
 

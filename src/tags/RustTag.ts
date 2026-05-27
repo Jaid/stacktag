@@ -1,3 +1,5 @@
+import type {Jsonifiable, JsonObject} from 'type-fest'
+
 import fs from '#src/lib/fs.ts'
 import NotDetectedError from '#src/NotDetectedError.ts'
 
@@ -11,7 +13,7 @@ export default class RustTag extends Tag {
     if (!cargoFile && !lockfile && !toolchainFile) {
       throw new NotDetectedError('No Rust marker was found.')
     }
-    const value: Record<string, unknown> = {}
+    const value: JsonObject = {}
     if (cargoFile) {
       value.cargo = await fs.parseTomlFile(`${folder}/${cargoFile}`)
       value.cargoFile = cargoFile
@@ -23,7 +25,7 @@ export default class RustTag extends Tag {
       value.toolchain = toolchainFile === 'rust-toolchain.toml' ? await fs.parseTomlFile(`${folder}/${toolchainFile}`) : await fs.readTrimmedFile(`${folder}/${toolchainFile}`)
       value.toolchainFile = toolchainFile
     }
-    return Object.keys(value).length > 0 ? value : true
+    return Object.keys(value).length > 0 ? value : undefined
   }
   override getName() {
     return 'Rust'

@@ -1,23 +1,30 @@
-import type {Arrayable, Constructor} from 'type-fest'
+import type {Arrayable, Constructor, Jsonifiable} from 'type-fest'
 
 import {EventEmitter} from 'node:events'
+
+export type TagPayload = Exclude<Jsonifiable, false>
+export type TagDetectionResult = TagPayload | false | void
 
 export type EventPayload = {
   detection: boolean
   error?: Error
   id: string
   tag: Tag
-  value: unknown
+  value: TagPayload | undefined
 }
 export type TagRepresentation = Constructor<Tag> | string
 export type TagList = Arrayable<TagRepresentation>
 
 export default abstract class Tag extends EventEmitter {
   /**
-   * A detection run that doesn’t throw will always be considered a `true` detection. Throw a `NotDetectedError` to indicate a `false` state from a clean detection run or any other `Error` to indicate a `false` state due to unexpected conditions.
-   * @return an optional payload with data collected during detection
+   * @return A detection run that can have various kinds of returns to signal different states:
+   * - `Jsonifiable`: considered a `true` detection with a payload consisting of tag-related context that can be accessed by the library user and by other tags during their own detection runs
+   * - `true | undefined | void`: considered a `true` detection without a payload
+   * - `false`: considered a `false` detection without a payload
+   * - Throw a `NotDetectedError` to indicate a `false` state from a clean detection run and use the constructor to give a custom payload, usually just a textual hint
+   * - Throw any other `Error` to indicate a `false` state due to unexpected conditions
    */
-  abstract detect(folder: string): Promise<unknown>
+  abstract detect(folder: string): Promise<TagDetectionResult>
   getName(): string {
     return this.constructor.name
   }

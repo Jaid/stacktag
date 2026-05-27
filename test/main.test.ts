@@ -1,3 +1,6 @@
+import type ProjectClass from '#src/Project.ts'
+import type {EventPayload} from '#src/tags/base/Tag.ts'
+
 import {afterEach, describe, expect, test} from 'bun:test'
 import os from 'node:os'
 import path from 'node:path'
@@ -6,6 +9,7 @@ import fs from 'fs-extra'
 
 const {default: Project} = await import('#src/main.ts')
 const {default: BunTag} = await import('#src/tags/BunTag.ts')
+const {default: Tag} = await import('#src/tags/base/Tag.ts')
 const temporaryFolders = new Set<string>
 const createProject = async (files: Record<string, string>) => {
   const temporaryFolder = await fs.mkdtemp(path.join(os.tmpdir(), 'stacktag-'))
@@ -23,6 +27,52 @@ afterEach(async () => {
   temporaryFolders.clear()
 })
 describe('Project', () => {
+  test('treats `false` returns as clean negative detections', async () => {
+    class FalseTag extends Tag {
+      override async detect() {
+        return false
+      }
+    }
+    class EventAwareTag extends Tag {
+      sourceDetected = false
+      constructor() {
+        super()
+        this.on('detect', (event: EventPayload) => {
+          if (event.id === 'false_tag') {
+            this.sourceDetected = event.detection
+          }
+        })
+      }
+      override async detect() {
+        return 'unexpected'
+      }
+      override shouldRun() {
+        return this.sourceDetected
+      }
+      override shouldRunBefore() {
+        return FalseTag
+      }
+    }
+    const folder = await createProject({})
+    const registry = new Map<string, typeof EventAwareTag | typeof FalseTag>([
+      ['false_tag', FalseTag],
+      ['event_aware', EventAwareTag],
+    ])
+    const project: ProjectClass = await Project.detect(folder, registry)
+    expect(project.hasTag('false_tag')).toBeFalse()
+    expect(project.getResult('false_tag')).toMatchObject({
+      detected: false,
+      ran: true,
+      skipped: false,
+      value: undefined,
+    })
+    expect(project.getResult('false_tag').error).toBeUndefined()
+    expect(project.getResult('event_aware')).toMatchObject({
+      detected: false,
+      ran: false,
+      skipped: true,
+    })
+  })
   test('throws when results are accessed before init', async () => {
     const folder = await createProject({})
     const project = new Project(folder)

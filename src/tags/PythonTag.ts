@@ -1,3 +1,5 @@
+import type {Jsonifiable, JsonObject} from 'type-fest'
+
 import fs from '#src/lib/fs.ts'
 import NotDetectedError from '#src/NotDetectedError.ts'
 
@@ -10,7 +12,7 @@ export default class PythonTag extends Tag {
     if (!configFile && !lockfile) {
       throw new NotDetectedError('No Python marker was found.')
     }
-    const value: Record<string, unknown> = {}
+    const value: JsonObject = {}
     if (configFile === 'pyproject.toml') {
       value.config = await fs.parseTomlFile(`${folder}/${configFile}`)
       value.configFile = configFile
@@ -27,7 +29,7 @@ export default class PythonTag extends Tag {
     if (lockfile) {
       value.lockfile = lockfile
     }
-    return Object.keys(value).length > 0 ? value : true
+    return Object.keys(value).length > 0 ? value : undefined
   }
   override getName() {
     return 'Python'

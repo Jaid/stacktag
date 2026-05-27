@@ -1,3 +1,5 @@
+import type {Jsonifiable, JsonObject} from 'type-fest'
+
 import {findFirstExistingFile, parseJson5File} from '#src/lib/fs.ts'
 import NotDetectedError from '#src/NotDetectedError.ts'
 import {parsePackageManagerVersion} from '#src/packageManager.ts'
@@ -15,7 +17,7 @@ export default class DenoTag extends PackageJsonAwareTag {
     if (!runtimeVersion && !engineVersion && !configFile && !importMap && !lockfile) {
       throw new NotDetectedError('No Deno marker was found.')
     }
-    const value: Record<string, unknown> = {}
+    const value: JsonObject = {}
     if (configFile) {
       value.config = await parseJson5File(`${folder}/${configFile}`)
       value.configFile = configFile
@@ -35,7 +37,7 @@ export default class DenoTag extends PackageJsonAwareTag {
     if (runtimeVersion) {
       value.runtimeVersion = runtimeVersion
     }
-    return Object.keys(value).length > 0 ? value : true
+    return Object.keys(value).length > 0 ? value : undefined
   }
   override getName() {
     return 'Deno'

@@ -1,6 +1,6 @@
 export {default} from './Project.ts'
 export {default as Project} from './Project.ts'
 export type {DetectedTag, ProjectResults, TagRegistry, TagResult} from './Project.ts'
-export type {EventPayload, TagList, TagRepresentation} from './tags/base/Tag.ts'
+export type {EventPayload, TagDetectionResult, TagList, TagPayload, TagRepresentation} from './tags/base/Tag.ts'
 export {BunTag, DenoTag, GitTag, NodeLikeTag, NodeTag, PythonTag, RustTag} from './tags/index.ts'
 export {default as tags} from './tags/index.ts'

@@ -1,3 +1,5 @@
+import type {Jsonifiable, JsonObject} from 'type-fest'
+
 import fs from '#src/lib/fs.ts'
 import NotDetectedError from '#src/NotDetectedError.ts'
 import {parsePackageManagerVersion} from '#src/packageManager.ts'
@@ -14,7 +16,7 @@ export default class BunTag extends PackageJsonAwareTag {
     if (!runtimeVersion && !engineVersion && !lockfile && !configFile) {
       throw new NotDetectedError('No Bun marker was found.')
     }
-    const value: Record<string, unknown> = {}
+    const value: JsonObject = {}
     if (configFile) {
       value.config = await fs.parseTomlFile(`${folder}/${configFile}`)
       value.configFile = configFile
@@ -34,7 +36,6 @@ export default class BunTag extends PackageJsonAwareTag {
     if (Object.keys(value).length > 0) {
       return value
     }
-    return true
   }
   override getName() {
     return 'Bun'
