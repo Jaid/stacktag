@@ -23,6 +23,24 @@ afterEach(async () => {
   temporaryFolders.clear()
 })
 describe('Project', () => {
+  test('throws when results are accessed before init', async () => {
+    const folder = await createProject({})
+    const project = new Project(folder)
+    expect(() => project.results).toThrow('Call `await project.init()` first')
+    expect(() => project.getResults()).toThrow('Call `await project.init()` first')
+    expect(() => project.getTags()).toThrow('Call `await project.init()` first')
+    expect(() => project.hasTag('git')).toThrow('Call `await project.init()` first')
+  })
+  test('shares concurrent init calls', async () => {
+    const folder = await createProject({
+      'bunfig.toml': '[install]\ncache = false\n',
+    })
+    const project = new Project(folder)
+    const [firstProject, secondProject] = await Promise.all([project.init(), project.init()])
+    expect(firstProject).toBe(project)
+    expect(secondProject).toBe(project)
+    expect(project.hasTag('bun')).toBeTrue()
+  })
   test('detects Git, Node-like, Node.js and Bun projects', async () => {
     const folder = await createProject({
       '.git/HEAD': 'ref: refs/heads/main\n',
@@ -35,40 +53,41 @@ describe('Project', () => {
         packageManager: 'bun@1.2.18',
       }, undefined, 2),
     })
-    const project = new Project(folder)
-    expect(await project.hasTag('git')).toBeTrue()
-    expect(await project.hasTag('node_like')).toBeTrue()
-    expect(await project.hasTag('node')).toBeTrue()
-    expect(await project.hasTag(BunTag)).toBeTrue()
-    expect(await project.getResult('git')).toMatchObject({
+    const project = await Project.detect(folder)
+    expect(project.hasTag('git')).toBeTrue()
+    expect(project.hasTag('node_like')).toBeTrue()
+    expect(project.hasTag('node')).toBeTrue()
+    expect(project.hasTag(BunTag)).toBeTrue()
+    expect(project.getResult('git')).toMatchObject({
       detected: true,
       value: 'main',
     })
-    const nodeLikeResult = await project.getResult('node_like')
+    const nodeLikeResult = project.getResult('node_like')
     expect(nodeLikeResult.value).toMatchObject({
       name: 'fixture',
       packageManager: 'bun@1.2.18',
     })
-    const nodeResult = await project.getResult('node')
+    const nodeResult = project.getResult('node')
     expect(nodeResult.value).toBe('>=24')
-    const bunResult = await project.getResult('bun')
+    const bunResult = project.getResult('bun')
     expect(bunResult.value).toMatchObject({
       lockfile: 'bun.lock',
       packageManager: 'bun@1.2.18',
       runtimeVersion: '1.2.18',
     })
-    const detectedTags = await project.getTags()
+    expect(project.getResults()).toBe(project.results)
+    const detectedTags = project.getTags()
     expect(detectedTags.map(tag => tag.id)).toEqual(['git', 'node_like', 'bun', 'node'])
   })
   test('detects Bun projects without package.json from bunfig.toml', async () => {
     const folder = await createProject({
       'bunfig.toml': '[install]\ncache = false\n',
     })
-    const project = new Project(folder)
-    expect(await project.hasTag('bun')).toBeTrue()
-    expect(await project.hasTag('node_like')).toBeFalse()
-    expect(await project.hasTag('node')).toBeFalse()
-    const bunResult = await project.getResult('bun')
+    const project = await Project.detect(folder)
+    expect(project.hasTag('bun')).toBeTrue()
+    expect(project.hasTag('node_like')).toBeFalse()
+    expect(project.hasTag('node')).toBeFalse()
+    const bunResult = project.getResult('bun')
     expect(bunResult.value).toMatchObject({
       config: {
         install: {
@@ -82,10 +101,10 @@ describe('Project', () => {
     const folder = await createProject({
       'deno.jsonc': '{\n  // comment\n  "tasks": {"start": "deno run main.ts"},\n  "imports": {"std/": "jsr:@std/"}\n}\n',
     })
-    const project = new Project(folder)
-    expect(await project.hasTag('deno')).toBeTrue()
-    expect(await project.hasTag('node_like')).toBeFalse()
-    const denoResult = await project.getResult('deno')
+    const project = await Project.detect(folder)
+    expect(project.hasTag('deno')).toBeTrue()
+    expect(project.hasTag('node_like')).toBeFalse()
+    const denoResult = project.getResult('deno')
     expect(denoResult.value).toMatchObject({
       config: {
         imports: {
@@ -102,9 +121,9 @@ describe('Project', () => {
     const folder = await createProject({
       'pyproject.toml': '[project]\nname = "demo"\nrequires-python = ">=3.13"\n',
     })
-    const project = new Project(folder)
-    expect(await project.hasTag('python')).toBeTrue()
-    const pythonResult = await project.getResult('python')
+    const project = await Project.detect(folder)
+    expect(project.hasTag('python')).toBeTrue()
+    const pythonResult = project.getResult('python')
     expect(pythonResult.value).toMatchObject({
       config: {
         project: {
@@ -120,9 +139,9 @@ describe('Project', () => {
       'Cargo.toml': '[package]\nname = "demo"\nversion = "0.1.0"\nrust-version = "1.88"\n',
       'rust-toolchain.toml': '[toolchain]\nchannel = "nightly"\n',
     })
-    const project = new Project(folder)
-    expect(await project.hasTag('rust')).toBeTrue()
-    const rustResult = await project.getResult('rust')
+    const project = await Project.detect(folder)
+    expect(project.hasTag('rust')).toBeTrue()
+    const rustResult = project.getResult('rust')
     expect(rustResult.value).toMatchObject({
       cargo: {
         package: {

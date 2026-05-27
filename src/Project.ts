@@ -44,11 +44,17 @@ const asArray = <Type>(value: Array<Type> | Type | undefined) => {
 }
 
 export default class Project {
+  static async detect<ProjectType extends Project>(this: new (cwd?: string, registry?: TagRegistry) => ProjectType, cwd: string = process.cwd(), registry?: TagRegistry) {
+    const project = new this(cwd, registry)
+    await project.init()
+    return project
+  }
   readonly cwd: string
   executionOrder?: Array<string>
   readonly registry: TagRegistry
-  results?: ProjectResults
   private readonly idsByConstructor = new Map<Constructor<Tag>, string>
+  private initPromise?: Promise<this>
+  private resultsValue?: ProjectResults
   private tagInstances?: Map<string, Tag>
   constructor(cwd: string = process.cwd(), registry: TagRegistry = defaultTagRegistry) {
     this.cwd = path.resolve(cwd).replaceAll('\\', '/')
@@ -57,21 +63,21 @@ export default class Project {
       this.idsByConstructor.set(TagClass, id)
     }
   }
-  async getResult(tag: TagRepresentation) {
-    const results = await this.getResults()
+  get results() {
+    if (this.resultsValue === undefined) {
+      throw new Error('Project results are not initialized yet. Call `await project.init()` first or use `await Project.detect()`.')
+    }
+    return this.resultsValue
+  }
+  getResult(tag: TagRepresentation) {
+    const results = this.results
     return results[this.normalizeTag(tag)]
   }
-  async getResults() {
-    if (!this.results) {
-      await this.init()
-    }
-    if (!this.results) {
-      throw new Error('Project results are not initialized.')
-    }
+  getResults() {
     return this.results
   }
-  async getTags() {
-    const results = await this.getResults()
+  getTags() {
+    const results = this.results
     const order = this.executionOrder ?? Object.keys(results)
     return order.flatMap((id): Array<DetectedTag> => {
       const result = results[id]
@@ -87,24 +93,33 @@ export default class Project {
       ]
     })
   }
-  async hasTag(tag: TagRepresentation) {
-    const result = await this.getResult(tag)
+  hasTag(tag: TagRepresentation) {
+    const result = this.getResult(tag)
     return result.detected
   }
   async init() {
-    if (this.results) {
+    if (this.resultsValue !== undefined) {
       return this
     }
-    await expect.folderExists(this.cwd)
-    this.tagInstances = new Map([...this.registry.entries()].map(([id, TagClass]) => [id, new TagClass]))
-    this.executionOrder = this.getExecutionOrder()
-    const results = this.createResults()
-    const processedImplications = new Set<string>
-    for (const id of this.executionOrder) {
-      await this.detectTag(id, results, processedImplications)
+    if (!this.initPromise) {
+      this.initPromise = (async () => {
+        await expect.folderExists(this.cwd)
+        this.tagInstances = new Map([...this.registry.entries()].map(([id, TagClass]) => [id, new TagClass]))
+        this.executionOrder = this.getExecutionOrder()
+        const results = this.createResults()
+        const processedImplications = new Set<string>
+        for (const id of this.executionOrder) {
+          await this.detectTag(id, results, processedImplications)
+        }
+        this.resultsValue = results
+        return this
+      })()
     }
-    this.results = results
-    return this
+    try {
+      return await this.initPromise
+    } finally {
+      this.initPromise = undefined
+    }
   }
   private applyImplications(id: string, results: ProjectResults, processed: Set<string>) {
     if (!this.tagInstances) {

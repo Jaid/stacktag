@@ -7,10 +7,10 @@ Analyzes a project folder and returns detected stack tags plus tag-specific meta
 ```ts
 import Project from 'stacktag'
 
-const project = new Project('C:/Users/jaid/git/stacktag')
+const project = await Project.detect('C:/Users/jaid/git/stacktag')
 
-console.log(await project.getTags())
-console.log(await project.getResults())
+console.log(project.getTags())
+console.log(project.results)
 ```
 
 ## API
@@ -19,7 +19,19 @@ console.log(await project.getResults())
 
 Creates an analyzer for `cwd`. If omitted, the current working directory is used.
 
-### `await project.getTags()`
+Call `await project.init()` before using any instance methods or `project.results`.
+
+### `await Project.detect(cwd?)`
+
+Creates a new instance, runs `init()` and returns the ready-to-use project.
+
+### `project.results`
+
+Returns detailed results for all registered tags, including skipped and undetected ones.
+
+Throws if `init()` has not completed yet.
+
+### `project.getTags()`
 
 Returns all detected tags in execution order.
 
@@ -31,15 +43,15 @@ type DetectedTag = {
 }
 ```
 
-### `await project.getResults()`
+### `project.getResults()`
 
-Returns detailed results for all registered tags, including skipped and undetected ones.
+Sync alias for `project.results`.
 
-### `await project.getResult(tag)`
+### `project.getResult(tag)`
 
 Returns the detailed result for a single tag. `tag` may be a tag id or a tag class.
 
-### `await project.hasTag(tag)`
+### `project.hasTag(tag)`
 
 Returns whether a tag was detected.
 

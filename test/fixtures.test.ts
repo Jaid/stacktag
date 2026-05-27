@@ -29,7 +29,7 @@ describe.each(fixtureIds)('%s', fixtureId => {
   }, {timeout: 60_000})
   test('check', async () => {
     const {default: check} = (await import(`#root/test/fixture/${fixtureId}/check.ts`)) as {default: FixtureCheck}
-    const project = new ProjectClass(fixtureOutputFolder)
+    const project = await ProjectClass.detect(fixtureOutputFolder)
     await check(project)
   })
 })
