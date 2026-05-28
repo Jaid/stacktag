@@ -8,12 +8,17 @@ import NotDetectedError from '#src/NotDetectedError.ts'
 
 import Tag from './base/Tag.ts'
 
+export type Payload = {
+  head: string
+  headType: 'branch' | 'detached'
+}
+
 export default class GitTag extends Tag {
-  override async detect(folder: string) {
+  override async detect(folder: string): Promise<Payload> {
     const gitPath = `${folder}/.git`
     const gitPathExists = await fs.exists(gitPath)
     if (!gitPathExists) {
-      throw new NotDetectedError(`Missing Git marker: ${gitPath}`)
+      throw new NotDetectedError(`missing Git marker: ${gitPath}`)
     }
     const gitStats = await fs.stat(gitPath)
     let gitFolder = gitPath
@@ -23,7 +28,7 @@ export default class GitTag extends Tag {
       const gitdirMatch = gitdirPattern.exec(gitdirContent)
       const gitdir = gitdirMatch?.groups?.gitdir
       if (!gitdir) {
-        throw new NotDetectedError(`Unsupported .git indirection in ${gitPath}`)
+        throw new NotDetectedError(`unsupported .git indirection in ${gitPath}`)
       }
       gitFolder = path.resolve(folder, gitdir).replaceAll('\\', '/')
     } else {
@@ -36,13 +41,19 @@ export default class GitTag extends Tag {
     const headContent = await readTrimmedFile(headFile)
     const headContentMatch = headContentPattern.exec(headContent)
     if (headContentMatch?.groups?.branch) {
-      return headContentMatch.groups.branch
+      return {
+        headType: 'branch',
+        head: headContentMatch.groups.branch,
+      }
     }
     const detachedHeadMatch = detachedHeadPattern.exec(headContent)
     if (detachedHeadMatch?.groups?.commit) {
-      return detachedHeadMatch.groups.commit
+      return {
+        headType: 'detached',
+        head: detachedHeadMatch.groups.commit,
+      }
     }
-    throw new NotDetectedError(`Unsupported Git HEAD format in ${headFile}`)
+    throw new NotDetectedError(`unsupported Git HEAD format in ${headFile}`)
   }
   override getName() {
     return 'Git'

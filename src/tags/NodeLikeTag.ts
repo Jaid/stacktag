@@ -5,11 +5,16 @@ import fs from '#src/lib/fs.ts'
 
 import Tag from './base/Tag.ts'
 
+export type Payload = {
+  packageJson: PackageJson
+}
+
 export default class NodeLikeTag extends Tag {
-  override async detect(folder: string) {
+  override async detect(folder: string): Promise<Payload> {
     const packageJsonFile = `${folder}/package.json`
     await expect.fileNotEmpty(packageJsonFile)
-    return fs.parseJson5File<PackageJson>(packageJsonFile)
+    const packageJson = await fs.parseJson5File<PackageJson>(packageJsonFile)
+    return {packageJson}
   }
   override getName() {
     return 'Node-like'

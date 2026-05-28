@@ -1,18 +1,26 @@
-import type {Jsonifiable, JsonObject} from 'type-fest'
+import type {JsonObject} from 'type-fest'
 
 import fs from '#src/lib/fs.ts'
 import NotDetectedError from '#src/NotDetectedError.ts'
 
 import Tag from './base/Tag.ts'
 
+export type Payload = {
+  config?: JsonObject
+  configFile?: string
+  lockfile?: string
+  requirements?: Array<string>
+  runtimeVersion?: string
+}
+
 export default class PythonTag extends Tag {
-  override async detect(folder: string) {
+  override async detect(folder: string): Promise<Payload> {
     const configFile = await fs.findFirstExistingFile(folder, ['pyproject.toml', '.python-version', 'requirements.txt', 'setup.cfg', 'Pipfile', 'setup.py'])
     const lockfile = await fs.findFirstExistingFile(folder, ['uv.lock', 'poetry.lock'])
     if (!configFile && !lockfile) {
-      throw new NotDetectedError('No Python marker was found.')
+      throw new NotDetectedError('no Python indicator')
     }
-    const value: JsonObject = {}
+    const value: Payload = {}
     if (configFile === 'pyproject.toml') {
       value.config = await fs.parseTomlFile(`${folder}/${configFile}`)
       value.configFile = configFile
@@ -29,7 +37,7 @@ export default class PythonTag extends Tag {
     if (lockfile) {
       value.lockfile = lockfile
     }
-    return Object.keys(value).length > 0 ? value : undefined
+    return value
   }
   override getName() {
     return 'Python'
