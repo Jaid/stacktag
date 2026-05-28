@@ -1,8 +1,9 @@
-import type Tag from '#src/tags/base/Tag.ts'
+import type Tag from './base/Tag.ts'
 import type {Constructor} from 'type-fest'
 
 import BunTag from './BunTag.ts'
 import DenoTag from './DenoTag.ts'
+import GitLikeTag from './GitLikeTag.ts'
 import GitTag from './GitTag.ts'
 import NodeLikeTag from './NodeLikeTag.ts'
 import NodeTag from './NodeTag.ts'
@@ -16,10 +17,11 @@ const add = (id: string, TagClass: Constructor<Tag>) => {
 add('bun', BunTag)
 add('deno', DenoTag)
 add('git', GitTag)
+add('git_like', GitLikeTag)
 add('node', NodeTag)
 add('node_like', NodeLikeTag)
 add('python', PythonTag)
 add('rust', RustTag)
 
-export {BunTag, DenoTag, GitTag, NodeLikeTag, NodeTag, PythonTag, RustTag}
+export {BunTag, DenoTag, GitLikeTag, GitTag, NodeLikeTag, NodeTag, PythonTag, RustTag}
 export default map
