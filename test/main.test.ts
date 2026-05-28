@@ -110,15 +110,22 @@ describe('Project', () => {
     expect(project.hasTag(BunTag)).toBeTrue()
     expect(project.getResult('git')).toMatchObject({
       detected: true,
-      value: 'main',
+      value: {
+        head: 'main',
+        headType: 'branch',
+      },
     })
     const nodeLikeResult = project.getResult('node_like')
     expect(nodeLikeResult.value).toMatchObject({
-      name: 'fixture',
-      packageManager: 'bun@1.2.18',
+      packageJson: {
+        name: 'fixture',
+        packageManager: 'bun@1.2.18',
+      },
     })
     const nodeResult = project.getResult('node')
-    expect(nodeResult.value).toBe('>=24')
+    expect(nodeResult.value).toMatchObject({
+      engineSelector: '>=24',
+    })
     const bunResult = project.getResult('bun')
     expect(bunResult.value).toMatchObject({
       lockfile: 'bun.lock',

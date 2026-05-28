@@ -1,3 +1,4 @@
+import type {Payload as NodeLikePayload} from '../NodeLikeTag.ts'
 import type {EventPayload} from './Tag.ts'
 import type {PackageJson} from 'type-fest'
 
@@ -15,7 +16,7 @@ export default abstract class PackageJsonAwareTag extends Tag {
       if (!(event.tag instanceof NodeLikeTag)) {
         return
       }
-      this.packageJson = event.value as PackageJson
+      this.packageJson = (event.value as NodeLikePayload | undefined)?.packageJson
     })
   }
   override shouldRunBefore() {

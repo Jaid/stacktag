@@ -8,7 +8,9 @@ const check = (project: Project) => {
   expect(project.hasTag('node_like')).toBeTrue()
   expect(project.hasTag('bun')).toBeTrue()
   expect(project.getResult('node_like').value).toMatchObject({
-    name: 'stacktag',
+    packageJson: {
+      name: 'stacktag',
+    },
   })
   expect(project.getResult('bun').value).toMatchObject({
     configFile: 'bunfig.toml',
