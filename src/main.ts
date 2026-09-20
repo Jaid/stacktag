@@ -1,3 +1,4 @@
+export {default as NotDetectedError} from './NotDetectedError.ts'
 export {default} from './Project.ts'
 export {default as Project} from './Project.ts'
 export type {DetectedTag, ProjectResults, TagRegistry, TagResult} from './Project.ts'

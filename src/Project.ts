@@ -5,6 +5,7 @@ import type {Constructor} from 'type-fest'
 import * as path from 'forward-slash-path'
 
 import expect from '#src/expect.ts'
+import NotDetectedError from '#src/NotDetectedError.ts'
 import defaultTagRegistry from '#src/tags/index.ts'
 
 export type DetectedTag = {
@@ -232,8 +233,12 @@ export default class Project {
         }
       }
     } catch (rawError) {
-      error = toError(rawError)
-      result.error = error
+      if (rawError instanceof NotDetectedError) {
+        result.value = rawError.payload
+      } else {
+        error = toError(rawError)
+        result.error = error
+      }
       if (!result.forced) {
         result.detected = false
       }

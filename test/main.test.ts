@@ -7,7 +7,7 @@ import os from 'node:os'
 import * as path from 'forward-slash-path'
 import fs from 'fs-extra'
 
-const {default: Project} = await import('#src/main.ts')
+const {default: Project, NotDetectedError} = await import('#src/main.ts')
 const {default: BunTag} = await import('#src/tags/BunTag.ts')
 const {default: Tag} = await import('#src/tags/base/Tag.ts')
 const temporaryFolders = new Set<string>
@@ -71,6 +71,39 @@ describe('Project', () => {
       detected: false,
       ran: false,
       skipped: true,
+    })
+  })
+  test('treats NotDetectedError as a clean negative detection with an optional payload', async () => {
+    class CleanNegativeTag extends Tag {
+      override async detect() {
+        throw new NotDetectedError({reason: 'not applicable'})
+      }
+    }
+    class BrokenTag extends Tag {
+      override async detect() {
+        throw new Error('broken detector')
+      }
+    }
+    const folder = await createProject({})
+    const registry = new Map<string, typeof BrokenTag | typeof CleanNegativeTag>([
+      ['clean_negative', CleanNegativeTag],
+      ['broken', BrokenTag],
+    ])
+    const project: ProjectClass = await Project.detect(folder, registry)
+    expect(project.getResult('clean_negative')).toMatchObject({
+      detected: false,
+      ran: true,
+      skipped: false,
+      value: {
+        reason: 'not applicable',
+      },
+    })
+    expect(project.getResult('clean_negative').error).toBeUndefined()
+    expect(project.getResult('broken')).toMatchObject({
+      detected: false,
+      ran: true,
+      skipped: false,
+      error: new Error('broken detector'),
     })
   })
   test('throws when results are accessed before init', async () => {

@@ -53,7 +53,7 @@ Sync alias for `project.results`.
 
 Returns the detailed result for a single tag. `tag` may be a tag id or a tag class.
 
-Custom tag payloads are always JSON-serializable. Returning `false` from `detect()` marks a tag as undetected.
+Custom tag payloads are always JSON-serializable. Returning `false` from `detect()` marks a tag as undetected. Throw `NotDetectedError(payload?)` for a clean negative detection that optionally carries diagnostic metadata without populating `result.error`.
 
 ### `project.hasTag(tag)`
 
