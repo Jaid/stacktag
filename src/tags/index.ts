@@ -23,5 +23,13 @@ add('node_like', NodeLikeTag)
 add('python', PythonTag)
 add('rust', RustTag)
 
-export {BunTag, DenoTag, GitLikeTag, GitTag, NodeLikeTag, NodeTag, PythonTag, RustTag}
 export default map
+
+export {default as BunTag} from './BunTag.ts'
+export {default as DenoTag} from './DenoTag.ts'
+export {default as GitLikeTag} from './GitLikeTag.ts'
+export {default as GitTag} from './GitTag.ts'
+export {default as NodeLikeTag} from './NodeLikeTag.ts'
+export {default as NodeTag} from './NodeTag.ts'
+export {default as PythonTag} from './PythonTag.ts'
+export {default as RustTag} from './RustTag.ts'

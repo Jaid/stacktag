@@ -1,6 +1,7 @@
 import type Tag from '#src/tags/base/Tag.ts'
 import type {EventPayload, TagPayload, TagRepresentation} from '#src/tags/base/Tag.ts'
 import type {Constructor} from 'type-fest'
+
 import * as path from 'forward-slash-path'
 
 import expect from '#src/expect.ts'
@@ -30,7 +31,7 @@ export type TagResult = {
 export type ProjectResults = Record<string, TagResult>
 
 const toError = (error: unknown) => {
-  if (error instanceof Error) {
+  if (Error.isError(error)) {
     return error
   }
   return new Error(`Unexpected throwable: ${String(error)}`)
@@ -58,7 +59,7 @@ export default class Project {
   constructor(cwd: string = process.cwd(), registry: TagRegistry = defaultTagRegistry) {
     this.cwd = path.resolve(cwd).replaceAll('\\', '/')
     this.registry = new Map(registry)
-    for (const [id, TagClass] of this.registry.entries()) {
+    for (const [id, TagClass] of this.registry) {
       this.idsByConstructor.set(TagClass, id)
     }
   }
@@ -103,7 +104,7 @@ export default class Project {
     if (!this.initPromise) {
       this.initPromise = (async () => {
         await expect.folderExists(this.cwd)
-        this.tagInstances = new Map([...this.registry.entries()].map(([id, TagClass]) => [id, new TagClass]))
+        this.tagInstances = new Map([...this.registry].map(([id, TagClass]) => [id, new TagClass]))
         this.executionOrder = this.getExecutionOrder()
         const results = this.createResults()
         const processedImplications = new Set<string>
@@ -174,7 +175,7 @@ export default class Project {
     if (!this.tagInstances) {
       throw new Error('Tag instances are not initialized.')
     }
-    const entries = [...this.tagInstances.entries()].map(([id, tag]) => {
+    const entries = [...this.tagInstances].map(([id, tag]) => {
       const result: TagResult = {
         detected: false,
         forced: false,
@@ -269,7 +270,7 @@ export default class Project {
       targets.add(after)
       incomingEdges.set(after, (incomingEdges.get(after) ?? 0) + 1)
     }
-    for (const [id, tag] of this.tagInstances.entries()) {
+    for (const [id, tag] of this.tagInstances) {
       for (const dependencyId of this.normalizeTagList(tag.needs())) {
         addEdge(dependencyId, id)
       }

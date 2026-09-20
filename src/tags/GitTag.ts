@@ -1,5 +1,4 @@
 import * as path from 'forward-slash-path'
-
 import fs from 'fs-extra'
 
 import expect from '#src/expect.ts'

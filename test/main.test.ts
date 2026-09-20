@@ -3,8 +3,8 @@ import type {EventPayload} from '#src/tags/base/Tag.ts'
 
 import {afterEach, describe, expect, test} from 'bun:test'
 import os from 'node:os'
-import * as path from 'forward-slash-path'
 
+import * as path from 'forward-slash-path'
 import fs from 'fs-extra'
 
 const {default: Project} = await import('#src/main.ts')

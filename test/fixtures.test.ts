@@ -1,8 +1,8 @@
 import type {FixtureCheck, FixtureSource} from '#root/test/lib/types.ts'
 
 import {beforeAll, describe, test} from 'bun:test'
-import * as path from 'forward-slash-path'
 
+import * as path from 'forward-slash-path'
 import fs from 'fs-extra'
 
 import ProjectClass from '#src/Project.ts'
