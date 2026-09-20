@@ -31,6 +31,6 @@
     "eslint-config-jaid": "^33.1.1",
     "tsconfig-jaid-bun": "^16.0.0",
     "type-fest": "^5.10.0",
-    "typescript": "^7.0.2"
+    "typescript": "npm:typescript-classic@6.0.4"
   }
 }
