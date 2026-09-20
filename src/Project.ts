@@ -1,8 +1,7 @@
 import type Tag from '#src/tags/base/Tag.ts'
 import type {EventPayload, TagPayload, TagRepresentation} from '#src/tags/base/Tag.ts'
 import type {Constructor} from 'type-fest'
-
-import path from 'node:path'
+import * as path from 'forward-slash-path'
 
 import expect from '#src/expect.ts'
 import defaultTagRegistry from '#src/tags/index.ts'

@@ -3,7 +3,7 @@ import type {EventPayload} from '#src/tags/base/Tag.ts'
 
 import {afterEach, describe, expect, test} from 'bun:test'
 import os from 'node:os'
-import path from 'node:path'
+import * as path from 'forward-slash-path'
 
 import fs from 'fs-extra'
 
