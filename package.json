@@ -19,7 +19,7 @@
     "#root/*": "./*"
   },
   "scripts": {
-    "readme": "bun tldw",
+    "build": "build_lib --terser-strength aggressive",
     "test": "bun test --max-concurrency 1 ./test"
   },
   "dependencies": {
