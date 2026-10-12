@@ -1,3 +1,18 @@
 {
-  "extends": "./node_modules/tsconfig-jaid-bun/base.json"
+  "extends": "./node_modules/tsconfig-jaid-bun/base.json",
+  "include": [
+    "${configDir}/*",
+    "${configDir}/*.json",
+    "${configDir}/src/**/*",
+    "${configDir}/src/**/*.json",
+    "${configDir}/lib/**/*",
+    "${configDir}/lib/**/*.json",
+    "${configDir}/test/**/*",
+    "${configDir}/test/**/*.json",
+    "${configDir}/scripts/**/*",
+    "${configDir}/scripts/**/*.json",
+    "${configDir}/packages/**/*",
+    "${configDir}/packages/**/*.json",
+    "${configDir}/docs/**/*"
+  ]
 }
