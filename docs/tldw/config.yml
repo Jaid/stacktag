@@ -1,0 +1,10 @@
+installation:
+  type: production
+  packageManagers:
+    - bun
+    - npm
+shields:
+  items:
+    - npmLatest
+    - license
+    - bun

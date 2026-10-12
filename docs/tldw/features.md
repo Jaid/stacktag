@@ -1,0 +1,5 @@
+- detects Git, Git-like, Node-like, Node.js, Bun, Deno, Python and Rust projects
+- returns tag-specific JSON-serializable metadata, such as the parsed `package.json`, `bunfig.toml`, `deno.jsonc`, `pyproject.toml` or `Cargo.toml`
+- distinguishes detected, undetected, skipped, implied and failed tags in detailed per-tag results
+- dependency-aware execution order derived from priorities and tag relations
+- extensible with custom `Tag` subclasses and custom tag registries
