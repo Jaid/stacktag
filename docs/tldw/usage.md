@@ -24,7 +24,7 @@ Accessing results before `init()` has completed throws.
 | ID | name | implication | detected by | payload |
 | --- | --- | --- | --- | --- |
 | `git` | Git | is a Git repository | `.git` folder or `gitdir:` file with a readable `HEAD` | `{head: string, headType: 'branch' \| 'detached'}` |
-| `git_like` | Git-like | is meant to be versioned with Git | `.gitignore`, `.gitattributes` or `.gitmodules` | `undefined` |
+| `git_like` | Git-like | is meant to be versioned with Git | `.gitignore`, `.gitattributes` or `.gitmodules` |  |
 | `node_like` | Node-like | is an npm-style package | nonempty `package.json` | `{packageJson: PackageJson}` |
 | `node` | Node.js | targets Node.js | `package.json#engines.node`, needs `node_like` | `{engineSelector: string}` |
 | `bun` | Bun | uses Bun | `bun.lock`, `bun.lockb`, `bunfig.toml`, `package.json#engines.bun` or a `bun@` package manager | `{config?: JsonObject, configFile?: string, engineVersion?: string, lockfile?: string, packageManager?: string, runtimeVersion?: string}` |
