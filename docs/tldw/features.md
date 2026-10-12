@@ -1,5 +1,5 @@
-- detects Git, Git-like, Node-like, Node.js, Bun, Deno, Python and Rust projects
-- returns tag-specific JSON-serializable metadata, such as the parsed `package.json`, `bunfig.toml`, `deno.jsonc`, `pyproject.toml` or `Cargo.toml`
+- detects Git, Git-like, GitHub, GitHub Repository, Node-like, Node.js, Workspace, Bun, Deno, Python, Rust, TypeScript, Vite, Rolldown, ESLint and Browserslist projects
+- returns tag-specific JSON-serializable metadata, such as the parsed `package.json`, `bunfig.toml`, `deno.jsonc`, `pyproject.toml`, `Cargo.toml`, `tsconfig.json` or Browserslist config, GitHub remotes and workspace packages
 - distinguishes detected, undetected, skipped, implied and failed tags in detailed per-tag results
 - dependency-aware execution order derived from priorities and tag relations
 - extensible with custom `Tag` subclasses and custom tag registries
