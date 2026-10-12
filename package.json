@@ -25,6 +25,8 @@
   "dependencies": {
     "forward-slash-path": "0.3.0",
     "fs-extra": "11.4.1",
+    "globby": "16.2.4",
+    "traverse-workspace": "0.2.0",
     "trim-around": "0.1.0"
   },
   "devDependencies": {
