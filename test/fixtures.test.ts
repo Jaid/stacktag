@@ -27,7 +27,7 @@ const resolveFixtureFolder = async (fixtureId: string, source: FixtureSource) =>
   const fixtureOutputFolder = `${outputFolder}/${fixtureContentId}`
   const fixtureOutputFolderExists = await fs.exists(fixtureOutputFolder)
   if (!fixtureOutputFolderExists) {
-    await Bun.$`git clone --depth 1 --revision ${source.revision} git@github.com:${source.repo}.git ${fixtureOutputFolder}`
+    await Bun.$`git clone --depth 1 --revision ${source.revision} https://github.com/${source.repo}.git ${fixtureOutputFolder}`
   }
   return fixtureOutputFolder
 }
