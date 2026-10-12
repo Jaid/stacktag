@@ -36,7 +36,6 @@ export default class GitTag extends Tag {
     const headFile = `${gitFolder}/HEAD`
     await expect.fileNotEmpty(headFile)
     const headContentPattern = /^\s*ref:\s+refs\/heads\/(?<branch>.+)\s*$/
-    const detachedHeadPattern = /^(?<commit>[0-9a-f]{40})$/i
     const headContent = await readTrimmedFile(headFile)
     const headContentMatch = headContentPattern.exec(headContent)
     if (headContentMatch?.groups?.branch) {
@@ -45,6 +44,7 @@ export default class GitTag extends Tag {
         head: headContentMatch.groups.branch,
       }
     }
+    const detachedHeadPattern = /^(?<commit>[0-9a-f]{40})$/i
     const detachedHeadMatch = detachedHeadPattern.exec(headContent)
     if (detachedHeadMatch?.groups?.commit) {
       return {
