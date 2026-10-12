@@ -261,7 +261,7 @@ export default class Project {
     if (!this.tagInstances) {
       throw new Error('Tag instances are not initialized.')
     }
-    const ids = [...this.tagInstances.keys()]
+    const ids = this.tagInstances.keys().toArray()
     const edges = new Map(ids.map(id => [id, new Set<string>]))
     const incomingEdges = new Map(ids.map(id => [id, 0]))
     const addEdge = (before: string, after: string) => {
